@@ -8,7 +8,7 @@ public class LabelToken implements Token {
 	}
 
 	@Override
-	public String getLexeme() {
-		return lexeme.s;
+	public LocatedString getLexeme() {
+		return lexeme;
 	}
 }

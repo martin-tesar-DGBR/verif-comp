@@ -1,7 +1,7 @@
 package lexer;
 
 public class StaticTokenImpl implements Token {
-	StaticToken token;
+	public StaticToken token;
 	LocatedString lexeme;
 
 	StaticTokenImpl(StaticToken token, int line, int col) {
@@ -10,7 +10,7 @@ public class StaticTokenImpl implements Token {
 	}
 
 	@Override
-	public String getLexeme() {
-		return lexeme.s;
+	public LocatedString getLexeme() {
+		return lexeme;
 	}
 }

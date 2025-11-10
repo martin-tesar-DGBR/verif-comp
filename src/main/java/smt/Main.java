@@ -1,5 +1,6 @@
 package smt;
 
+import ast.*;
 import com.microsoft.z3.*;
 import lexer.*;
 
@@ -15,9 +16,9 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        while (lexer.hasNext()) {
-            Token t = lexer.next();
-            System.out.println(t.getClass().toString() + ": " + t.getLexeme());
-        }
+        Parser parser = new Parser(lexer);
+        ASTNode root = parser.parseProgram();
+        PrintVisitor visitor = new PrintVisitor();
+        root.acceptVisitor(visitor);
     }
 }

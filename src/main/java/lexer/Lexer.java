@@ -54,18 +54,43 @@ public class Lexer implements Iterator<Token> {
 	}
 
 	PushbackCharStream stream;
+	Token peek;
 
 	public static Lexer make(String filename) throws IOException {
 		return new Lexer(new PushbackCharStream(filename));
 	}
 
+	public Token peek() {
+		if (this.peek == null) {
+			this.peek = readNextToken();
+		}
+		return this.peek;
+	}
+
 	@Override
 	public boolean hasNext() {
-		return stream.hasNext();
+		return peek != null || stream.hasNext();
 	}
 
 	@Override
 	public Token next() {
+		Token ret;
+		if (this.peek != null) {
+			ret = this.peek;
+			this.peek = null;
+		}
+		else {
+			ret = readNextToken();
+		}
+		return ret;
+	}
+
+	private Lexer(PushbackCharStream stream) {
+		this.stream = stream;
+		this.peek = null;
+	}
+
+	private Token readNextToken() {
 		Token ret;
 		LocatedChar fst = stream.next();
 		int line = fst.line, col = fst.col;
@@ -79,10 +104,6 @@ public class Lexer implements Iterator<Token> {
 		}
 		skipWhitespace();
 		return ret;
-	}
-
-	private Lexer(PushbackCharStream stream) {
-		this.stream = stream;
 	}
 
 	private void skipWhitespace() {
