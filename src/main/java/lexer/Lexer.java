@@ -4,6 +4,8 @@ import lexer.StaticToken.TokenStateTree;
 import logging.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class Lexer implements Iterator<Token> {
@@ -15,9 +17,9 @@ public class Lexer implements Iterator<Token> {
 		int currCharNum;
 		Stack<LocatedChar> stack;
 
-		PushbackCharStream(String filename) throws IOException {
+		PushbackCharStream(Path file) throws IOException {
+			this.fs = Files.newBufferedReader(file);
 			this.stack = new Stack<>();
-			this.fs = new BufferedReader(new FileReader(filename));
 			this.currLineNum = 0;
 			preloadLine();
 		}
@@ -64,7 +66,11 @@ public class Lexer implements Iterator<Token> {
 	Logger logger;
 
 	public static Lexer make(String filename) throws IOException {
-		return new Lexer(new PushbackCharStream(filename));
+		return Lexer.make(Path.of(filename));
+	}
+
+	public static Lexer make(Path file) throws IOException {
+		return new Lexer(new PushbackCharStream(file));
 	}
 
 	public Token peek() {

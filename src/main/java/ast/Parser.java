@@ -204,31 +204,35 @@ public class Parser {
 	}
 
 	private ASTNode parseIntAddExpr() {
-		ASTNode fst = parseIntMulExpr();
-		if (!checkHasNext()) return fst;
-		Token op = stream.peek();
-		if (op instanceof StaticTokenImpl t && (t.token == StaticToken.ADD || t.token == StaticToken.SUB)) {
-			if (!expect(StaticToken.ADD, StaticToken.SUB)) return null;
-			ASTNode snd = parseIntMulExpr();
-			return new IntOperatorNode(t, fst, snd);
+		ASTNode left = parseIntMulExpr();
+		while (checkHasNext()) {
+			Token op = stream.peek();
+			if (op instanceof StaticTokenImpl t && (t.token == StaticToken.ADD || t.token == StaticToken.SUB)) {
+				if (!expect(StaticToken.ADD, StaticToken.SUB)) return null;
+				ASTNode right = parseIntMulExpr();
+				left = new IntOperatorNode(t, left, right);
+			}
+			else {
+				break;
+			}
 		}
-		else {
-			return fst;
-		}
+		return left;
 	}
 
 	private ASTNode parseIntMulExpr() {
-		ASTNode fst = parseIntParenExpr();
-		if (!checkHasNext()) return fst;
-		Token op = stream.peek();
-		if (op instanceof StaticTokenImpl t && t.token == StaticToken.MUL) {
-			if (!expect(StaticToken.MUL)) return null;
-			ASTNode snd = parseIntParenExpr();
-			return new IntOperatorNode(t, fst, snd);
+		ASTNode left = parseIntParenExpr();
+		while (checkHasNext()) {
+			Token op = stream.peek();
+			if (op instanceof StaticTokenImpl t && t.token == StaticToken.MUL) {
+				if (!expect(StaticToken.MUL)) return null;
+				ASTNode right = parseIntParenExpr();
+				left = new IntOperatorNode(t, left, right);
+			}
+			else {
+				break;
+			}
 		}
-		else {
-			return fst;
-		}
+		return left;
 	}
 
 	private ASTNode parseIntParenExpr() {
@@ -272,7 +276,7 @@ public class Parser {
 		Token token = stream.peek();
 		if (token instanceof StaticTokenImpl t && t.token == StaticToken.OR) {
 			if (!expect(StaticToken.OR)) return null;
-			ASTNode snd = parseBoolAndExpr();
+			ASTNode snd = parseBoolOrExpr();
 			return new BoolOperatorNode(t, fst, snd);
 		}
 		else {
@@ -286,7 +290,7 @@ public class Parser {
 		Token token = stream.peek();
 		if (token instanceof StaticTokenImpl t && t.token == StaticToken.AND) {
 			if (!expect(StaticToken.AND)) return null;
-			ASTNode snd = parseBoolParenExpr();
+			ASTNode snd = parseBoolAndExpr();
 			return new BoolOperatorNode(t, fst, snd);
 		}
 		else {

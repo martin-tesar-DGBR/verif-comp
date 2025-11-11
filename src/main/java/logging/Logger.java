@@ -9,6 +9,12 @@ public class Logger {
 		return loggers[type.ordinal()];
 	}
 
+	public static void clearLogs() {
+		for (Logger logger : loggers) {
+			logger.data.clear();
+		}
+	}
+
 	public void log(LogLevel level, String s) {
 		if (level.compareTo(this.minLevel) >= 0) {
 			this.data.add(new LogEntry(level, s));

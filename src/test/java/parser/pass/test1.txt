@@ -15,12 +15,11 @@
         }
         else {
             s := 12
-            t := 14
+            t := (14 - s) * y + 28
         }
         r := s + x
     }
-    x := 1 - 2 * y - (3 + x) - (4 + 8)
-    check(t < 0)
-    print(r)
+    check(s > x * y)
+    print(s)
     print(x)
 }

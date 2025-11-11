@@ -92,6 +92,8 @@ public class PrintVisitor implements ASTVisitor {
 		this.clearIndent();
 		this.println(":=");
 		this.addIndent(2);
+		this.clearIndent();
+		this.println(node.lhs.s);
 	}
 
 	@Override
