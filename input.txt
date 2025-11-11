@@ -19,8 +19,7 @@
         }
         r := s + x
     }
-    print(s)
-    print(t)
+    check(t < 0)
     print(r)
     print(x)
 }
