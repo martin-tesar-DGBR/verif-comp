@@ -1,18 +1,49 @@
 package ast;
 
+import java.util.ArrayList;
+
 public class PrintVisitor implements ASTVisitor {
 
-	int indentation;
+	ArrayList<Integer> indent;
 	boolean newLine;
 
 	public PrintVisitor() {
-		this.indentation = 0;
+		this.indent = new ArrayList<>();
 		this.newLine = true;
 	}
 
+	private void addIndent(int count) {
+		this.indent.add(count);
+	}
+
+	private void clearIndent() {
+		if (this.indent.size() > 0) {
+			this.indent.set(this.indent.size() - 1, this.indent.get(this.indent.size() - 1) - 1);
+		}
+	}
+
+	private void removeIndent() {
+		this.indent.remove(this.indent.size() - 1);
+	}
+
 	private void printIndentation() {
-		for (int i = 0; i < indentation; i += 1) {
-			System.out.print("  ");
+		for (int i = 0; i < this.indent.size(); i += 1) {
+			if (i == this.indent.size() - 1) {
+				if (this.indent.get(i) > 0) {
+					System.out.print("\u251C ");
+				}
+				else {
+					System.out.print("\u2514 ");
+				}
+			}
+			else {
+				if (this.indent.get(i) > 0) {
+					System.out.print("\u2502 ");
+				}
+				else {
+					System.out.print("  ");
+				}
+			}
 		}
 	}
 
@@ -34,98 +65,109 @@ public class PrintVisitor implements ASTVisitor {
 
 	@Override
 	public void visitEnter(BlockNode node) {
+		this.clearIndent();
 		this.println("BLOCK");
-		this.indentation += 1;
+		this.addIndent(node.children.size());
 	}
 
 	@Override
 	public void visitExit(BlockNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visitEnter(CheckNode node) {
+		this.clearIndent();
 		this.println("check");
-		this.indentation += 1;
+		this.addIndent(1);
 	}
 
 	@Override
 	public void visitExit(CheckNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visitEnter(AssignmentNode node) {
+		this.clearIndent();
 		this.println(":=");
-		this.indentation += 1;
+		this.addIndent(2);
 	}
 
 	@Override
 	public void visitExit(AssignmentNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visitEnter(IfNode node) {
+		this.clearIndent();
 		this.println("if");
-		this.indentation += 1;
+		this.addIndent(3);
 	}
 
 	@Override
 	public void visitExit(IfNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visitEnter(IntOperatorNode node) {
+		this.clearIndent();
 		this.println(node.op.name());
-		this.indentation += 1;
+		this.addIndent(2);
 	}
 
 	@Override
 	public void visitExit(IntOperatorNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visitEnter(BoolOperatorNode node) {
+		this.clearIndent();
 		this.println(node.op.name());
-		this.indentation += 1;
+		this.addIndent(2);
 	}
 
 	@Override
 	public void visitExit(BoolOperatorNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visitEnter(BoolCompareNode node) {
+		this.clearIndent();
 		this.println(node.cmp.name());
-		this.indentation += 1;
+		this.addIndent(2);
 	}
 
 	@Override
 	public void visitExit(BoolCompareNode node) {
-		this.indentation -= 1;
+		this.removeIndent();
 	}
 
 	@Override
 	public void visit(LabelNode node) {
+		this.clearIndent();
 		this.println(node.label.s);
 	}
 
 	@Override
 	public void visit(IntConstantNode node) {
+		this.clearIndent();
 		this.println(node.lexeme.s);
 	}
 
 	@Override
 	public void visit(PrintNode node) {
+		this.clearIndent();
 		this.println("print: " + node.variable.s);
 	}
 
 	@Override
 	public void visit(ErrorNode node) {
+		this.clearIndent();
 		this.println("ERROR");
 	}
 }

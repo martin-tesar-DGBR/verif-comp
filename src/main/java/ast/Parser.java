@@ -16,7 +16,6 @@ public class Parser {
 
 	public ASTNode parseProgram() {
 		ASTNode program = parseBlock();
-		this.logger.dump();
 		return program;
 	}
 
@@ -40,9 +39,10 @@ public class Parser {
 			logger.log(LogLevel.SEVERE, builder.toString());
 			return false;
 		}
-		Token read = this.stream.next();
+		Token read = this.stream.peek();
 		for (StaticToken token : tokens) {
 			if (read instanceof StaticTokenImpl t && t.token == token) {
+				this.stream.next();
 				return true;
 			}
 		}
