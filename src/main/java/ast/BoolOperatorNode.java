@@ -16,18 +16,14 @@ public class BoolOperatorNode extends ASTNode {
 
 	BoolOperatorNode(StaticTokenImpl token, ASTNode left, ASTNode right) {
 		super(token.getLexeme());
-		assert left != null;
 		switch (token.token) {
 			case OR -> {
-				assert right != null;
 				this.op = Operator.OR;
 			}
 			case AND -> {
-				assert right != null;
 				this.op = Operator.AND;
 			}
 			case NOT -> {
-				assert right == null;
 				this.op = Operator.NOT;
 			}
 			default -> {

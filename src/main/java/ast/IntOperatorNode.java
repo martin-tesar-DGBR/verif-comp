@@ -20,7 +20,6 @@ public class IntOperatorNode extends ASTNode {
 		assert left != null;
 		switch (token.token) {
 			case ADD -> {
-				assert right != null;
 				this.op = Operator.ADD;
 			}
 			case SUB -> {
@@ -32,7 +31,6 @@ public class IntOperatorNode extends ASTNode {
 				}
 			}
 			case MUL -> {
-				assert right != null;
 				this.op = Operator.MUL;
 			}
 			default -> {
