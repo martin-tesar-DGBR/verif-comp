@@ -1,27 +1,70 @@
 package ast;
 
 import lexer.*;
+import logging.*;
 
 import java.util.*;
 
 public class Parser {
 	Lexer stream;
+	Logger logger;
 
 	public Parser(Lexer stream) {
 		this.stream = stream;
+		this.logger = Logger.get(LogType.PARSER);
 	}
 
 	public ASTNode parseProgram() {
-		return parseBlock();
+		ASTNode program = parseBlock();
+		this.logger.dump();
+		return program;
 	}
 
 	private boolean expect(StaticToken... tokens) {
+		if (tokens.length < 1) {
+			throw new IllegalArgumentException("There must be at least one argument to expect()");
+		}
+		if (!stream.hasNext()) {
+			StringBuilder builder = new StringBuilder();
+			if (tokens.length == 1) {
+				builder.append("Expected");
+			}
+			else {
+				builder.append("Expected one of");
+			}
+			for (StaticToken token : tokens) {
+				builder.append(' ')
+					.append(token.lexeme);
+			}
+			builder.append(", reached end of file");
+			logger.log(LogLevel.SEVERE, builder.toString());
+			return false;
+		}
 		Token read = this.stream.next();
 		for (StaticToken token : tokens) {
 			if (read instanceof StaticTokenImpl t && t.token == token) {
 				return true;
 			}
 		}
+		LocatedString lexeme = read.getLexeme();
+		StringBuilder builder = new StringBuilder();
+		if (tokens.length == 1) {
+			builder.append("Expected");
+		}
+		else {
+			builder.append("Expected one of");
+		}
+		for (StaticToken token : tokens) {
+			builder.append(' ')
+				.append(token.lexeme);
+		}
+		builder.append(", got ")
+			.append(lexeme.s)
+			.append(" at line ")
+			.append(lexeme.line)
+			.append(", column ")
+			.append(lexeme.col);
+		logger.log(LogLevel.SEVERE, builder.toString());
 		return false;
 	}
 
@@ -56,7 +99,9 @@ public class Parser {
 
 	private ASTNode parseStatement() {
 		// honestly this can be folded into parseBlock
-		startsStatement();
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token next = stream.peek();
 		if (next instanceof StaticTokenImpl st) {
 			switch (st.token) {
@@ -81,6 +126,9 @@ public class Parser {
 	}
 
 	private ASTNode parseIfStatement() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		expect(StaticToken.IF);
 		ASTNode cond = parseBoolExpr();
@@ -95,6 +143,9 @@ public class Parser {
 	}
 
 	private ASTNode parseCheckStatement() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		expect(StaticToken.CHECK);
 		expect(StaticToken.LEFT_PAREN);
@@ -104,6 +155,9 @@ public class Parser {
 	}
 
 	private ASTNode parsePrintStatement() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		expect(StaticToken.PRINT);
 		expect(StaticToken.LEFT_PAREN);
@@ -114,6 +168,9 @@ public class Parser {
 	}
 
 	private ASTNode parseAssignmentStatement() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token label = stream.next();
 		// assert label instanceof LabelToken;
 		Token assign = stream.peek();
@@ -123,6 +180,9 @@ public class Parser {
 	}
 
 	private ASTNode parseIntExpr() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token next = stream.peek();
 		if (next instanceof StaticTokenImpl t && t.token == StaticToken.SUB) {
 			expect(StaticToken.SUB);
@@ -136,6 +196,9 @@ public class Parser {
 
 	private ASTNode parseIntAddExpr() {
 		ASTNode fst = parseIntMulExpr();
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token op = stream.peek();
 		if (op instanceof StaticTokenImpl t && (t.token == StaticToken.ADD || t.token == StaticToken.SUB)) {
 			expect(StaticToken.ADD, StaticToken.SUB);
@@ -149,6 +212,9 @@ public class Parser {
 
 	private ASTNode parseIntMulExpr() {
 		ASTNode fst = parseIntParenExpr();
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token op = stream.peek();
 		if (op instanceof StaticTokenImpl t && t.token == StaticToken.MUL) {
 			expect(StaticToken.MUL);
@@ -161,6 +227,9 @@ public class Parser {
 	}
 
 	private ASTNode parseIntParenExpr() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		if (token instanceof StaticTokenImpl) {
 			expect(StaticToken.LEFT_PAREN);
@@ -182,6 +251,9 @@ public class Parser {
 	}
 
 	private ASTNode parseBoolExpr() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		if (token instanceof StaticTokenImpl t && t.token == StaticToken.NOT) {
 			expect(StaticToken.NOT);
@@ -208,6 +280,9 @@ public class Parser {
 
 	private ASTNode parseBoolAndExpr() {
 		ASTNode fst = parseBoolParenExpr();
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		if (token instanceof StaticTokenImpl t && t.token == StaticToken.AND) {
 			expect(StaticToken.AND);
@@ -220,6 +295,9 @@ public class Parser {
 	}
 
 	private ASTNode parseBoolParenExpr() {
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token token = stream.peek();
 		if (token instanceof StaticTokenImpl) {
 			expect(StaticToken.LEFT_PAREN);
@@ -234,6 +312,9 @@ public class Parser {
 
 	private ASTNode parseBoolCmpExpr() {
 		ASTNode fst = parseIntExpr();
+		if (!stream.hasNext()) {
+			return null;
+		}
 		Token cmp = stream.peek();
 		expect(StaticToken.GREATER, StaticToken.EQUAL, StaticToken.LESSER);
 		ASTNode snd = parseIntExpr();

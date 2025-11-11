@@ -1,5 +1,8 @@
 package lexer;
 
+import lexer.StaticToken.TokenStateTree;
+import logging.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -44,9 +47,11 @@ public class Lexer implements Iterator<Token> {
 
 		private void preloadLine() {
 			try {
-				this.currLine = this.fs.readLine();
-				this.currLineNum += 1;
-				this.currCharNum = 0;
+				do {
+					this.currLine = this.fs.readLine();
+					this.currLineNum += 1;
+					this.currCharNum = 0;
+				} while (this.currLine != null && this.currLine.length() == 0);
 			} catch (IOException e) {
 				throw new RuntimeException("Lexing error");
 			}
@@ -55,6 +60,8 @@ public class Lexer implements Iterator<Token> {
 
 	PushbackCharStream stream;
 	Token peek;
+
+	Logger logger;
 
 	public static Lexer make(String filename) throws IOException {
 		return new Lexer(new PushbackCharStream(filename));
@@ -88,6 +95,7 @@ public class Lexer implements Iterator<Token> {
 	private Lexer(PushbackCharStream stream) {
 		this.stream = stream;
 		this.peek = null;
+		this.logger = Logger.get(LogType.LEXER);
 	}
 
 	private Token readNextToken() {
@@ -117,7 +125,7 @@ public class Lexer implements Iterator<Token> {
 	}
 
 	private Token scanStaticToken(int line, int col) {
-		StaticToken.TokenStateTree currState = StaticToken.tokenTree;
+		TokenStateTree currState = StaticToken.tokenTree;
 		Stack<LocatedChar> s = new Stack<>();
 		StaticToken token = null;
 		while (stream.hasNext()) {
@@ -125,6 +133,7 @@ public class Lexer implements Iterator<Token> {
 			if (currState.nextStates.containsKey(nxt.c)) {
 				s.push(nxt);
 				currState = currState.nextStates.get(nxt.c);
+				token = currState.terminal;
 			}
 			else {
 				stream.pushback(nxt);
@@ -212,6 +221,7 @@ public class Lexer implements Iterator<Token> {
 				builder.append(nxt.c);
 			}
 		}
+		this.logger.log(LogLevel.SEVERE, "Invalid token at line " + line + ", column " + col);
 		return new ErrorToken(new LocatedString(builder.toString(), line, col));
 	}
 }

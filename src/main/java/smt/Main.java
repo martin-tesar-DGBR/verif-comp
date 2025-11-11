@@ -3,6 +3,7 @@ package smt;
 import ast.*;
 import com.microsoft.z3.*;
 import lexer.*;
+import logging.*;
 
 import java.io.IOException;
 
@@ -16,9 +17,21 @@ public class Main {
             throw new RuntimeException(e);
         }
 
+        /*
+        while (lexer.hasNext()) {
+            lexer.peek();
+            System.out.println(lexer.next().getLexeme());
+        }
+        //*/
+
         Parser parser = new Parser(lexer);
         ASTNode root = parser.parseProgram();
-        PrintVisitor visitor = new PrintVisitor();
-        root.acceptVisitor(visitor);
+        if (Logger.get(LogType.PARSER).dump() != LogLevel.DEBUG) {
+            return;
+        }
+        else {
+            PrintVisitor visitor = new PrintVisitor();
+            root.acceptVisitor(visitor);
+        }
     }
 }

@@ -10,4 +10,9 @@ public class LocatedString {
 		this.line = line;
 		this.col = col;
 	}
+
+	@Override
+	public String toString() {
+		return "(\"" + this.s + "\", line = " + this.line + ", col = " + this.col + ")";
+	}
 }
