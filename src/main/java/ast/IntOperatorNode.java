@@ -1,0 +1,53 @@
+package ast;
+
+import lexer.*;
+
+public class IntOperatorNode extends ASTNode {
+
+	public enum Operator {
+		ADD,
+		SUB,
+		MUL,
+		NEGATE,
+	}
+
+	public Operator op;
+	public ASTNode left;
+	public ASTNode right;
+
+	public IntOperatorNode(StaticTokenImpl token, ASTNode left, ASTNode right) {
+		super(token.getLexeme());
+		switch (token.token) {
+			case ADD -> {
+				this.op = Operator.ADD;
+			}
+			case SUB -> {
+				if (right == null) {
+					this.op = Operator.NEGATE;
+				}
+				else {
+					this.op = Operator.SUB;
+				}
+			}
+			case MUL -> {
+				this.op = Operator.MUL;
+			}
+			default -> {
+				assert false;
+			}
+		}
+		this.left = left;
+		this.right = right;
+	}
+
+
+	@Override
+	public void acceptVisitor(ASTVisitor visitor) {
+		visitor.visitEnter(this);
+		left.acceptVisitor(visitor);
+		if (right != null) {
+			right.acceptVisitor(visitor);
+		}
+		visitor.visitExit(this);
+	}
+}
