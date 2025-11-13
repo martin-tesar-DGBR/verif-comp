@@ -17,7 +17,6 @@ public class IntOperatorNode extends ASTNode {
 
 	public IntOperatorNode(StaticTokenImpl token, ASTNode left, ASTNode right) {
 		super(token.getLexeme());
-		assert left != null;
 		switch (token.token) {
 			case ADD -> {
 				this.op = Operator.ADD;

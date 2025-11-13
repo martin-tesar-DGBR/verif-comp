@@ -30,18 +30,18 @@ public class PrintVisitor implements ASTVisitor {
 		for (int i = 0; i < this.indent.size(); i += 1) {
 			if (i == this.indent.size() - 1) {
 				if (this.indent.get(i) > 0) {
-					System.out.print("\u251C ");
+					System.out.print("\u251C "); // '├'
 				}
 				else {
-					System.out.print("\u2514 ");
+					System.out.print("\u2514 "); // '└'
 				}
 			}
 			else {
 				if (this.indent.get(i) > 0) {
-					System.out.print("\u2502 ");
+					System.out.print("\u2502 "); // '│'
 				}
 				else {
-					System.out.print("  ");
+					System.out.print("  "); // ' '
 				}
 			}
 		}
@@ -90,10 +90,10 @@ public class PrintVisitor implements ASTVisitor {
 	@Override
 	public void visitEnter(AssignmentNode node) {
 		this.clearIndent();
-		this.println(":=");
-		this.addIndent(2);
-		this.clearIndent();
+		this.print("ASSIGN: ");
 		this.println(node.lhs.s);
+		this.addIndent(1);
+		this.clearIndent();
 	}
 
 	@Override
@@ -117,7 +117,12 @@ public class PrintVisitor implements ASTVisitor {
 	public void visitEnter(IntOperatorNode node) {
 		this.clearIndent();
 		this.println(node.op.name());
-		this.addIndent(2);
+		if (node.right == null) {
+			this.addIndent(1);
+		}
+		else {
+			this.addIndent(2);
+		}
 	}
 
 	@Override
@@ -129,7 +134,12 @@ public class PrintVisitor implements ASTVisitor {
 	public void visitEnter(BoolOperatorNode node) {
 		this.clearIndent();
 		this.println(node.op.name());
-		this.addIndent(2);
+		if (node.right == null) {
+			this.addIndent(1);
+		}
+		else {
+			this.addIndent(2);
+		}
 	}
 
 	@Override

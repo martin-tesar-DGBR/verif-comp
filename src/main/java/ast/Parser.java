@@ -81,7 +81,6 @@ public class Parser {
 	}
 
 	private ASTNode parseBlock() {
-		// TODO: proper error handling when parsing
 		Token blockToken = this.stream.peek();
 		if (!expect(StaticToken.LEFT_BRACE)) return null;
 		List<ASTNode> statements = new ArrayList<>();
@@ -183,7 +182,7 @@ public class Parser {
 			Token assign = stream.peek();
 			if (!expect(StaticToken.ASSIGN)) return null;
 			ASTNode expr = parseIntExpr();
-			return new AssignmentNode(assign.getLexeme(), label.getLexeme(), expr);
+			return new AssignmentNode(assign.getLexeme(), l.getLexeme(), expr);
 		}
 		else {
 			return null;
@@ -324,7 +323,7 @@ public class Parser {
 		ASTNode fst = parseIntExpr();
 		if (!checkHasNext()) return fst;
 		Token cmp = stream.peek();
-		if (!expect(StaticToken.GREATER, StaticToken.EQUAL, StaticToken.LESSER)) return null;
+		if (!expect(StaticToken.GREATER, StaticToken.EQUAL, StaticToken.LESSER)) return fst;
 		ASTNode snd = parseIntExpr();
 		return new BoolCompareNode((StaticTokenImpl) cmp, fst, snd);
 	}
