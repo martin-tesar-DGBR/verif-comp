@@ -1,0 +1,200 @@
+package interpret;
+
+import ast.*;
+import lexer.LocatedString;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class Interpreter {
+
+    // Single environment mapping variable name -> integer value
+    private final Map<String, Integer> env = new HashMap<>();
+
+    /**
+     * Entry point: interpret the entire program.
+     */
+    public void run(ASTNode root) {
+        if (!(root instanceof BlockNode)) {
+            throw new IllegalArgumentException("Program root must be a BlockNode");
+        }
+        executeBlock((BlockNode) root);
+    }
+
+    // =========================
+    //   STATEMENTS
+    // =========================
+
+    private void executeBlock(BlockNode block) {
+        List<ASTNode> statements = block.children;
+        if (statements == null) return;
+        for (ASTNode stmt : statements) {
+            executeStatement(stmt);
+        }
+    }
+
+    private void executeStatement(ASTNode stmt) {
+        if (stmt instanceof AssignmentNode) {
+            executeAssignment((AssignmentNode) stmt);
+        } else if (stmt instanceof IfNode) {
+            executeIf((IfNode) stmt);
+        } else if (stmt instanceof CheckNode) {
+            executeCheck((CheckNode) stmt);
+        } else if (stmt instanceof PrintNode) {
+            executePrint((PrintNode) stmt);
+        } else if (stmt instanceof BlockNode) {
+            executeBlock((BlockNode) stmt);
+        } else if (stmt instanceof ErrorNode) {
+            throw new RuntimeException("Cannot interpret program with ErrorNode present.");
+        } else {
+            throw new IllegalStateException("Unexpected statement node type: " + stmt.getClass());
+        }
+    }
+
+    private void executeAssignment(AssignmentNode node) {
+        String varName = node.lhs.s;
+        int value = evalInt(node.rhs);
+        env.put(varName, value);
+    }
+
+    private void executeIf(IfNode node) {
+        boolean cond = evalBool(node.cond);
+        if (cond) {
+            executeBlock(node.branchThen);
+        } else {
+            executeBlock(node.branchElse);
+        }
+    }
+
+    private void executeCheck(CheckNode node) {
+        boolean ok = evalBool(node.expr);
+        if (!ok) {
+            LocatedString loc = node.lexeme;
+            System.err.println(
+                "Runtime check failed at line " + loc.line + ", column " + loc.col
+            );
+        }
+    }
+
+    private void executePrint(PrintNode node) {
+        String varName = node.variable.s;
+        Integer value = env.get(varName);
+        if (value == null) {
+            LocatedString loc = node.lexeme;
+            throw new RuntimeException(
+                "Variable \"" + varName + "\" used before assigned at line "
+                + loc.line + ", column " + loc.col
+            );
+        }
+        System.out.println(value);
+    }
+
+    // =========================
+    //   EXPRESSIONS – INT
+    // =========================
+
+    private int evalInt(ASTNode node) {
+        if (node instanceof IntConstantNode) {
+            IntConstantNode c = (IntConstantNode) node;
+            return Integer.parseInt(c.lexeme.s);
+        } else if (node instanceof LabelNode) {
+            LabelNode l = (LabelNode) node;
+            String name = l.label.s;
+            Integer value = env.get(name);
+            if (value == null) {
+                LocatedString loc = l.label;
+                throw new RuntimeException(
+                    "Variable \"" + name + "\" used before assigned at line "
+                    + loc.line + ", column " + loc.col
+                );
+            }
+            return value;
+        } else if (node instanceof IntOperatorNode) {
+            return evalIntOperator((IntOperatorNode) node);
+        } else {
+            throw new IllegalStateException(
+                "Expected integer expression, got " + node.getClass()
+            );
+        }
+    }
+
+    private int evalIntOperator(IntOperatorNode node) {
+        IntOperatorNode.Operator op = node.op;
+
+        // unary minus
+        if (op == IntOperatorNode.Operator.NEGATE) {
+            int v = evalInt(node.left);
+            return -v;
+        }
+
+        int left = evalInt(node.left);
+        int right = evalInt(node.right);
+
+        switch (op) {
+            case ADD:
+                return left + right;
+            case SUB:
+                return left - right;
+            case MUL:
+                return left * right;
+            default:
+                throw new IllegalStateException("Unexpected int operator: " + op);
+        }
+    }
+
+    // =========================
+    //   EXPRESSIONS – BOOL
+    // =========================
+
+    private boolean evalBool(ASTNode node) {
+        if (node instanceof BoolCompareNode) {
+            return evalBoolCompare((BoolCompareNode) node);
+        } else if (node instanceof BoolOperatorNode) {
+            return evalBoolOperator((BoolOperatorNode) node);
+        } else {
+            throw new IllegalStateException(
+                "Expected boolean expression, got " + node.getClass()
+            );
+        }
+    }
+
+    private boolean evalBoolCompare(BoolCompareNode node) {
+        int left = evalInt(node.left);
+        int right = evalInt(node.right);
+
+        switch (node.cmp) {
+            case GREATER:
+                return left > right;
+            case LESSER:
+                return left < right;
+            case EQUAL:
+                return left == right;
+            default:
+                throw new IllegalStateException("Unexpected comparison: " + node.cmp);
+        }
+    }
+
+    private boolean evalBoolOperator(BoolOperatorNode node) {
+        BoolOperatorNode.Operator op = node.op;
+
+        if (op == BoolOperatorNode.Operator.NOT) {
+            // unary NOT, right is null
+            return !evalBool(node.left);
+        }
+
+        // binary operators (short-circuit)
+        if (op == BoolOperatorNode.Operator.AND) {
+            boolean left = evalBool(node.left);
+            if (!left) return false;
+            return evalBool(node.right);
+        } else if (op == BoolOperatorNode.Operator.OR) {
+            boolean left = evalBool(node.left);
+            if (left) return true;
+            return evalBool(node.right);
+        } else {
+            throw new IllegalStateException("Unexpected boolean operator: " + op);
+        }
+    }
+}

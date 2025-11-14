@@ -2,6 +2,7 @@ package smt;
 
 import ast.*;
 import com.microsoft.z3.*;
+import interpret.Interpreter; 
 import lexer.*;
 import logging.*;
 import validate.UsageVisitor;
@@ -36,6 +37,9 @@ public class Main {
             UsageVisitor usageVisitor = new UsageVisitor();
             root.acceptVisitor(usageVisitor);
             Logger.get(LogType.VERIFIER).dump();
+
+            Interpreter interpreter = new Interpreter();
+            interpreter.run(root);
         }
     }
 }
