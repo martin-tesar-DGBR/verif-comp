@@ -16,16 +16,22 @@ import java.io.PrintStream;
 
 public class InterpreterTest {
 
-    /**
-     * Helper to run a program from a file and capture its stdout.
-     * Fails if parsing fails.
-     */
+   
     private String interpretFile(String filename) throws IOException {
-        // capture System.out
+        return interpretFileWithStdoutAndStderr(filename)[0];
+    }
+
+    private String[] interpretFileWithStdoutAndStderr(String filename) throws IOException {
         PrintStream originalOut = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        System.setOut(ps);
+        PrintStream originalErr = System.err;
+
+        ByteArrayOutputStream outBaos = new ByteArrayOutputStream();
+        ByteArrayOutputStream errBaos = new ByteArrayOutputStream();
+        PrintStream outPs = new PrintStream(outBaos);
+        PrintStream errPs = new PrintStream(errBaos);
+
+        System.setOut(outPs);
+        System.setErr(errPs);
 
         try {
             Lexer lexer = Lexer.make(filename);
@@ -44,14 +50,18 @@ public class InterpreterTest {
 
         } finally {
             System.out.flush();
+            System.err.flush();
             System.setOut(originalOut);
+            System.setErr(originalErr);
             Logger.clearLogs();
         }
 
-        return baos.toString().replace("\r\n", "\n");
+        String out = outBaos.toString().replace("\r\n", "\n");
+        String err = errBaos.toString().replace("\r\n", "\n");
+        return new String[]{out, err};
     }
 
-    // ---------- PASS TESTS ----------
+    // ---------- existing PASS tests ----------
 
     @Test
     public void simpleAssignAndPrint() throws IOException {
@@ -65,7 +75,7 @@ public class InterpreterTest {
         Assert.assertEquals("8\n", out);
     }
 
-    // ---------- FAIL TESTS ----------
+    // ---------- existing FAIL test ----------
 
     @Test
     public void useBeforeAssignFailsAtRuntime() throws IOException {
@@ -74,5 +84,21 @@ public class InterpreterTest {
             Assert.fail("Program should have failed at runtime (use-before-assign).");
         } catch (RuntimeException e) {
         }
+    }
+
+    @Test
+    public void checkPasses_NoErrorPrinted() throws IOException {
+        String[] outErr = interpretFileWithStdoutAndStderr(
+                "src/test/java/interpreter/pass/test3.txt");
+        Assert.assertEquals("5\n", outErr[0]);       
+        Assert.assertEquals("", outErr[1]);          
+    }
+
+    @Test
+    public void checkFails_ErrorOnStderr() throws IOException {
+        String[] outErr = interpretFileWithStdoutAndStderr(
+                "src/test/java/interpreter/pass/test4.txt");
+        Assert.assertEquals("10\n", outErr[0]);                     
+        Assert.assertTrue(outErr[1].contains("Runtime check failed"));
     }
 }

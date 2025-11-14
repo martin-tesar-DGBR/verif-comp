@@ -15,6 +15,7 @@
         print(x)
         print(y)
     }
+    check(x<100)
     print(x)
     print(y)
     print(z)
