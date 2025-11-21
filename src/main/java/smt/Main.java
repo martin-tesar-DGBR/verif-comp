@@ -6,6 +6,7 @@ import interpret.Interpreter;
 import lexer.*;
 import logging.*;
 import validate.UsageVisitor;
+import validate.VerificationVisitor;
 
 import java.io.IOException;
 
@@ -38,8 +39,15 @@ public class Main {
             root.acceptVisitor(usageVisitor);
             Logger.get(LogType.VERIFIER).dump();
 
+            VerificationVisitor verificationVisitor = new VerificationVisitor();
+            root.acceptVisitor(verificationVisitor);
+
+            System.out.println(verificationVisitor.verifyCondition());
+
+            /*
             Interpreter interpreter = new Interpreter();
             interpreter.run(root);
+            */
         }
     }
 }
