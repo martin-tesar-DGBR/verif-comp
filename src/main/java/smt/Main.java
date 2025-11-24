@@ -6,6 +6,7 @@ import interpret.Interpreter;
 import lexer.*;
 import logging.*;
 import validate.UsageVisitor;
+import verifier.Verifier;
 
 import java.io.IOException;
 
@@ -37,6 +38,9 @@ public class Main {
             UsageVisitor usageVisitor = new UsageVisitor();
             root.acceptVisitor(usageVisitor);
             Logger.get(LogType.VERIFIER).dump();
+
+            Verifier verifier = new Verifier();
+            verifier.run(root);
 
             Interpreter interpreter = new Interpreter();
             interpreter.run(root);
