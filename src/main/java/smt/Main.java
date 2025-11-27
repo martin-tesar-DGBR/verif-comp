@@ -6,6 +6,7 @@ import interpret.Interpreter;
 import lexer.*;
 import logging.*;
 import validate.UsageVisitor;
+import validate.VerifierVisitor;
 
 import java.io.IOException;
 
@@ -37,6 +38,12 @@ public class Main {
             UsageVisitor usageVisitor = new UsageVisitor();
             root.acceptVisitor(usageVisitor);
             Logger.get(LogType.VERIFIER).dump();
+            
+            // Static verification with Z3
+            VerifierVisitor verifier = new VerifierVisitor();
+            root.acceptVisitor(verifier);
+            Logger.get(LogType.VERIFIER).dump();
+            verifier.close();
 
             Interpreter interpreter = new Interpreter();
             interpreter.run(root);
