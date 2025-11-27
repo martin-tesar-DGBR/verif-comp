@@ -37,9 +37,9 @@ public class VerificationVisitor extends ASTVisitor.Default {
 			throw new IllegalStateException("Verification visitor failed; number of weakest preconditions " + this.wp.size() + " not 1.");
 		}
 		Solver solver = this.ctx.mkSolver();
-		solver.add(this.wp.pop());
+		solver.add(ctx.mkNot(this.wp.pop()));
 		Status status = solver.check();
-		return status == Status.SATISFIABLE;
+		return status == Status.UNSATISFIABLE;
 	}
 
 	@Override
