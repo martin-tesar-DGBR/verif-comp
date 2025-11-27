@@ -1,11 +1,11 @@
 package smt;
 
 import ast.*;
-import com.microsoft.z3.*;
-import interpret.Interpreter; 
+import interpret.Interpreter;
 import lexer.*;
 import logging.*;
 import validate.UsageVisitor;
+import verifier.VerificationVisitor;
 
 import java.io.IOException;
 
@@ -36,7 +36,18 @@ public class Main {
             root.acceptVisitor(visitor);
             UsageVisitor usageVisitor = new UsageVisitor();
             root.acceptVisitor(usageVisitor);
-            Logger.get(LogType.VERIFIER).dump();
+            if (Logger.get(LogType.VERIFIER).dump() != LogLevel.DEBUG) {
+                return;
+            }
+            Logger.clearLogs();
+
+            VerificationVisitor verificationVisitor = new VerificationVisitor();
+            root.acceptVisitor(verificationVisitor);
+
+            if (!verificationVisitor.verifyCondition()) {
+                return;
+            }
+            Logger.clearLogs();
 
             Interpreter interpreter = new Interpreter();
             interpreter.run(root);

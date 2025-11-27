@@ -2,6 +2,13 @@ package ast;
 
 public interface ASTVisitor {
 
+	enum BlockTraversalOrder {
+		FORWARDS,
+		BACKWARDS,
+	}
+
+	BlockTraversalOrder getTraversalOrder();
+
 	void visitEnter(BlockNode node);
 	void visitExit(BlockNode node);
 
@@ -29,6 +36,11 @@ public interface ASTVisitor {
 	void visit(ErrorNode node);
 
 	class Default implements ASTVisitor {
+		@Override
+		public BlockTraversalOrder getTraversalOrder() {
+			return BlockTraversalOrder.FORWARDS;
+		}
+
 		@Override
 		public void visitEnter(BlockNode node) {}
 

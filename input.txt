@@ -12,15 +12,17 @@
         if x < 12 {
             s := 15
             y := y + x
+            check(x < 12)
         }
         else {
             s := 12
             t := 14
+            check(t == 14)
         }
+        check(s > 10)
         r := s + x
     }
+    check(s > 10)
     x := 1 - 2 * y - (3 + x) - (4 + 8)
-    check(t < 0)
-    print(r)
     print(x)
 }

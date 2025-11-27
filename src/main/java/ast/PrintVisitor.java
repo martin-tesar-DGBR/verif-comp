@@ -2,7 +2,7 @@ package ast;
 
 import java.util.ArrayList;
 
-public class PrintVisitor implements ASTVisitor {
+public class PrintVisitor extends ASTVisitor.Default {
 
 	ArrayList<Integer> indent;
 	boolean newLine;

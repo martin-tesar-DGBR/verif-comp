@@ -1,0 +1,30 @@
+{
+    x := 4
+    y := 3 * x
+    if !x > 4 || y < 3 {
+        print(x)
+        z1 := 1
+        if x + z1 < y {
+            z2 := x + z1
+            s := 32
+        }
+        else {
+            z2 := y
+            z1 := z2 + z1
+        }
+    }
+    else {
+        z2 := 3
+        if x + z2 < y {
+            z1 := 1
+        }
+        else {
+            z1 := 4
+        }
+        s := 4 * z1
+    }
+    print(x)
+    print(y)
+    print(z1)
+    print(z2)
+}
