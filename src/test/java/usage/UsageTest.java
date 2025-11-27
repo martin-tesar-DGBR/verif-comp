@@ -1,9 +1,8 @@
-package validate;
+package usage;
 
 import ast.ASTNode;
 import ast.Parser;
 import lexer.Lexer;
-import logging.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,10 +30,12 @@ public class UsageTest {
 
 	@Test
 	public void invalidUsage() {
-		Assert.assertTrue(testUsage("src/test/java/validate/pass/test1.txt"));
+		Assert.assertTrue(testUsage("src/test/java/usage/pass/test1.txt"));
+		Assert.assertTrue(testUsage("src/test/java/usage/pass/test2.txt"));
 
-		Assert.assertFalse(testUsage("src/test/java/validate/fail/test1.txt"));
-		Assert.assertFalse(testUsage("src/test/java/validate/fail/test2.txt"));
-		Assert.assertFalse(testUsage("src/test/java/validate/fail/test3.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test1.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test2.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test3.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test4.txt"));
 	}
 }

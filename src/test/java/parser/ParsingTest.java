@@ -36,6 +36,8 @@ public class ParsingTest {
 	public void pass() {
 		testPass("src/test/java/parser/pass/test1.txt");
 		testPass("src/test/java/parser/pass/test2.txt");
+		testPass("src/test/java/parser/pass/test3.txt");
+		testPass("src/test/java/parser/pass/test4.txt");
 	}
 
 	@Test
@@ -43,5 +45,7 @@ public class ParsingTest {
 		testFail("src/test/java/parser/fail/test1.txt");
 		testFail("src/test/java/parser/fail/test2.txt");
 		testFail("src/test/java/parser/fail/test3.txt");
+		testFail("src/test/java/parser/fail/test4.txt");
+		testFail("src/test/java/parser/fail/test5.txt");
 	}
 }

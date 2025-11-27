@@ -1,0 +1,29 @@
+{
+    p := 2
+    if p < 0 {
+        if p > -3 {
+            q := 3
+        }
+        else {
+            q := -p
+        }
+        check(!q < -2)
+    }
+    else {
+        if p > -3 {
+            q := 3
+            print(q)
+        }
+        else {
+            if 12 > 5 + p {
+                q := 4
+            }
+            else {
+                q := 6
+                print(q)
+            }
+        }
+    }
+    r := p * (3 + q) * 4
+    print(r)
+}

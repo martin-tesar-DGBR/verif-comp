@@ -1,4 +1,4 @@
-package validate;
+package usage;
 
 import ast.*;
 import lexer.LocatedString;

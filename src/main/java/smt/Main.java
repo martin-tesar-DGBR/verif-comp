@@ -3,8 +3,7 @@ package smt;
 import ast.*;
 import interpret.Interpreter;
 import lexer.*;
-import logging.*;
-import validate.UsageVisitor;
+import usage.UsageVisitor;
 import verifier.VerificationVisitor;
 
 import java.io.IOException;
