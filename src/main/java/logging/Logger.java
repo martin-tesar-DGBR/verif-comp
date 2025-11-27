@@ -5,14 +5,12 @@ import java.util.List;
 
 public class Logger {
 
-	public static Logger get(LogType type) {
-		return loggers[type.ordinal()];
-	}
+	LogLevel minLevel;
+	List<LogEntry> data;
 
-	public static void clearLogs() {
-		for (Logger logger : loggers) {
-			logger.data.clear();
-		}
+	public Logger(LogLevel minLevel) {
+		this.data = new ArrayList<>();
+		this.minLevel = minLevel;
 	}
 
 	public void log(LogLevel level, String s) {
@@ -36,25 +34,6 @@ public class Logger {
 	}
 
 	/////////////////////////
-
-	LogLevel minLevel;
-	List<LogEntry> data;
-
-	private Logger(LogLevel minLevel) {
-		this.data = new ArrayList<>();
-		this.minLevel = minLevel;
-	}
-
-	private static Logger[] loggers = initLoggers();
-
-	private static Logger[] initLoggers() {
-		Logger[] loggers = new Logger[LogType.values().length];
-		// if we want to print different levels of logs for each stage, change the parameter in the constructor
-		loggers[LogType.LEXER.ordinal()] = new Logger(LogLevel.DEBUG);
-		loggers[LogType.PARSER.ordinal()] = new Logger(LogLevel.DEBUG);
-		loggers[LogType.VERIFIER.ordinal()] = new Logger(LogLevel.DEBUG);
-		return loggers;
-	}
 
 	private static class LogEntry {
 		LogLevel level;

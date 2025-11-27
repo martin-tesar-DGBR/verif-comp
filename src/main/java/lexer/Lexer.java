@@ -73,6 +73,10 @@ public class Lexer implements Iterator<Token> {
 		return new Lexer(new PushbackCharStream(file));
 	}
 
+	public boolean dumpLogs() {
+		return this.logger.dump() == LogLevel.DEBUG;
+	}
+
 	public Token peek() {
 		if (this.peek == null) {
 			this.peek = readNextToken();
@@ -101,7 +105,7 @@ public class Lexer implements Iterator<Token> {
 	private Lexer(PushbackCharStream stream) {
 		this.stream = stream;
 		this.peek = null;
-		this.logger = Logger.get(LogType.LEXER);
+		this.logger = new Logger(LogLevel.DEBUG);
 	}
 
 	private Token readNextToken() {

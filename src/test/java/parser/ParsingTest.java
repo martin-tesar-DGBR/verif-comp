@@ -2,7 +2,6 @@ package parser;
 
 import ast.*;
 import lexer.Lexer;
-import logging.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,12 +13,11 @@ public class ParsingTest {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			ASTNode program = parser.parseProgram();
-			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
+			boolean pass = lexer.dumpLogs() && program != null;
 			Assert.assertTrue("Program " + filename + " failed parsing.", pass);
 		} catch (IOException e) {
 			Assert.fail("Could not open file " + filename);
 		}
-		Logger.clearLogs();
 	}
 
 	void testFail(String filename) {
@@ -27,12 +25,11 @@ public class ParsingTest {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			ASTNode program = parser.parseProgram();
-			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
+			boolean pass = lexer.dumpLogs() && program != null;
 			Assert.assertFalse("Program " + filename + " passed parsing.", pass);
 		} catch (IOException e) {
 			Assert.fail("Could not open file " + filename);
 		}
-		Logger.clearLogs();
 	}
 
 	@Test

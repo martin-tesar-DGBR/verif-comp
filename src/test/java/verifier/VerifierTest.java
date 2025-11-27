@@ -19,7 +19,7 @@ public class VerifierTest {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			ASTNode program = parser.parseProgram();
-			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
+			boolean pass = lexer.dumpLogs() && program != null;
 			Assert.assertTrue("Program " + filename + " failed parsing.", pass);
             
             VerificationVisitor verifier = new VerificationVisitor();
@@ -28,7 +28,6 @@ public class VerifierTest {
 		} catch (IOException e) {
 			Assert.fail("Could not open file " + filename);
 		}
-		Logger.clearLogs();
 	}
 
     void testFail(String filename) {
@@ -36,7 +35,7 @@ public class VerifierTest {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			ASTNode program = parser.parseProgram();
-			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
+			boolean pass = lexer.dumpLogs() && program != null;
 			Assert.assertTrue("Program " + filename + " failed parsing.", pass);
 
 			VerificationVisitor verifier = new VerificationVisitor();
@@ -45,7 +44,6 @@ public class VerifierTest {
 		} catch (IOException e) {
 			Assert.fail("Could not open file " + filename);
 		}
-		Logger.clearLogs();
 	}
 
     @Test
@@ -59,6 +57,8 @@ public class VerifierTest {
 		testPass("src/test/java/verifier/pass/test7.txt");
 		testPass("src/test/java/verifier/pass/test8.txt");
 		testPass("src/test/java/verifier/pass/test9.txt");
+		testPass("src/test/java/verifier/pass/test10.txt");
+		testPass("src/test/java/verifier/pass/test11.txt");
     }
 
     @Test

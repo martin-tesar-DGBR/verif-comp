@@ -17,8 +17,7 @@ public class UsageTest {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			program = parser.parseProgram();
-			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
-			if (!pass) {
+			if (!lexer.dumpLogs() || program == null) {
 				return false;
 			}
 		} catch (IOException e) {
@@ -27,9 +26,7 @@ public class UsageTest {
 		Assert.assertNotNull(program);
 		UsageVisitor visitor = new UsageVisitor();
 		program.acceptVisitor(visitor);
-		boolean pass = Logger.get(LogType.VERIFIER).dump() == LogLevel.DEBUG;
-		Logger.clearLogs();
-		return pass;
+		return visitor.isUsageOk();
 	}
 
 	@Test
