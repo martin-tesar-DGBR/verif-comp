@@ -1,0 +1,5 @@
+{
+    myvar := 4
+    MYVERYLONGVARIABLENAME := myvar - 4
+    check(MYVERYLONGVARIABLENAME == 0)
+}

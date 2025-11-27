@@ -11,11 +11,14 @@ public class Parser {
 
 	public Parser(Lexer stream) {
 		this.stream = stream;
-		this.logger = Logger.get(LogType.PARSER);
+		this.logger = new Logger(LogLevel.DEBUG);
 	}
 
 	public ASTNode parseProgram() {
 		ASTNode program = parseBlock();
+		if (this.logger.dump() != LogLevel.DEBUG) {
+			return null;
+		}
 		return program;
 	}
 

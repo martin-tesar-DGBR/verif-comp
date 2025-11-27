@@ -3,6 +3,7 @@ package interpret;
 import ast.*;
 import lexer.LocatedString;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 public class Interpreter {
 
     // Single environment mapping variable name -> integer value
-    private final Map<String, Integer> env = new HashMap<>();
+    private final Map<String, BigInteger> env = new HashMap<>();
 
     /**
      * Entry point: interpret the entire program.
@@ -38,24 +39,24 @@ public class Interpreter {
     private void executeStatement(ASTNode stmt) {
         if (stmt instanceof AssignmentNode) {
             executeAssignment((AssignmentNode) stmt);
-        } else if (stmt instanceof IfNode) {
+        }
+        else if (stmt instanceof IfNode) {
             executeIf((IfNode) stmt);
-        } else if (stmt instanceof CheckNode) {
-            executeCheck((CheckNode) stmt);
-        } else if (stmt instanceof PrintNode) {
+        }
+        else if (stmt instanceof PrintNode) {
             executePrint((PrintNode) stmt);
-        } else if (stmt instanceof BlockNode) {
-            executeBlock((BlockNode) stmt);
-        } else if (stmt instanceof ErrorNode) {
-            throw new RuntimeException("Cannot interpret program with ErrorNode present.");
-        } else {
+        }
+        else if (stmt instanceof CheckNode) {
+            // do nothing; validated at compile time
+        }
+        else {
             throw new IllegalStateException("Unexpected statement node type: " + stmt.getClass());
         }
     }
 
     private void executeAssignment(AssignmentNode node) {
         String varName = node.lhs.s;
-        int value = evalInt(node.rhs);
+        BigInteger value = evalInt(node.rhs);
         env.put(varName, value);
     }
 
@@ -63,24 +64,15 @@ public class Interpreter {
         boolean cond = evalBool(node.cond);
         if (cond) {
             executeBlock(node.branchThen);
-        } else {
-            executeBlock(node.branchElse);
         }
-    }
-
-    private void executeCheck(CheckNode node) {
-        boolean ok = evalBool(node.expr);
-        if (!ok) {
-            LocatedString loc = node.lexeme;
-            System.err.println(
-                "Runtime check failed at line " + loc.line + ", column " + loc.col
-            );
+        else {
+            executeBlock(node.branchElse);
         }
     }
 
     private void executePrint(PrintNode node) {
         String varName = node.variable.s;
-        Integer value = env.get(varName);
+        BigInteger value = env.get(varName);
         if (value == null) {
             LocatedString loc = node.lexeme;
             throw new RuntimeException(
@@ -88,21 +80,22 @@ public class Interpreter {
                 + loc.line + ", column " + loc.col
             );
         }
-        System.out.println(value);
+        System.out.println(varName + ": " + value);
     }
 
     // =========================
     //   EXPRESSIONS – INT
     // =========================
 
-    private int evalInt(ASTNode node) {
+    private BigInteger evalInt(ASTNode node) {
         if (node instanceof IntConstantNode) {
             IntConstantNode c = (IntConstantNode) node;
-            return Integer.parseInt(c.lexeme.s);
-        } else if (node instanceof LabelNode) {
+            return new BigInteger(c.lexeme.s);
+        }
+        else if (node instanceof LabelNode) {
             LabelNode l = (LabelNode) node;
             String name = l.label.s;
-            Integer value = env.get(name);
+            BigInteger value = env.get(name);
             if (value == null) {
                 LocatedString loc = l.label;
                 throw new RuntimeException(
@@ -111,36 +104,41 @@ public class Interpreter {
                 );
             }
             return value;
-        } else if (node instanceof IntOperatorNode) {
+        }
+        else if (node instanceof IntOperatorNode) {
             return evalIntOperator((IntOperatorNode) node);
-        } else {
+        }
+        else {
             throw new IllegalStateException(
                 "Expected integer expression, got " + node.getClass()
             );
         }
     }
 
-    private int evalIntOperator(IntOperatorNode node) {
-        IntOperatorNode.Operator op = node.op;
-
-        // unary minus
-        if (op == IntOperatorNode.Operator.NEGATE) {
-            int v = evalInt(node.left);
-            return -v;
-        }
-
-        int left = evalInt(node.left);
-        int right = evalInt(node.right);
-
-        switch (op) {
-            case ADD:
-                return left + right;
-            case SUB:
-                return left - right;
-            case MUL:
-                return left * right;
-            default:
-                throw new IllegalStateException("Unexpected int operator: " + op);
+    private BigInteger evalIntOperator(IntOperatorNode node) {
+        switch (node.op) {
+            case ADD -> {
+                BigInteger left = evalInt(node.left);
+                BigInteger right = evalInt(node.right);
+                return left.add(right);
+            }
+            case SUB -> {
+                BigInteger left = evalInt(node.left);
+                BigInteger right = evalInt(node.right);
+                return left.subtract(right);
+            }
+            case MUL -> {
+                BigInteger left = evalInt(node.left);
+                BigInteger right = evalInt(node.right);
+                return left.multiply(right);
+            }
+            case NEGATE -> {
+                BigInteger v = evalInt(node.left);
+                return v.negate();
+            }
+            default -> {
+                throw new IllegalStateException("Unexpected int operator: " + node.op);
+            }
         }
     }
 
@@ -151,26 +149,28 @@ public class Interpreter {
     private boolean evalBool(ASTNode node) {
         if (node instanceof BoolCompareNode) {
             return evalBoolCompare((BoolCompareNode) node);
-        } else if (node instanceof BoolOperatorNode) {
+        }
+        else if (node instanceof BoolOperatorNode) {
             return evalBoolOperator((BoolOperatorNode) node);
-        } else {
-            throw new IllegalStateException(
-                "Expected boolean expression, got " + node.getClass()
-            );
+        }
+        else {
+            throw new IllegalStateException("Expected boolean expression, got " + node.getClass());
         }
     }
 
     private boolean evalBoolCompare(BoolCompareNode node) {
-        int left = evalInt(node.left);
-        int right = evalInt(node.right);
+        BigInteger left = evalInt(node.left);
+        BigInteger right = evalInt(node.right);
+
+        int cmp = left.compareTo(right);
 
         switch (node.cmp) {
             case GREATER:
-                return left > right;
+                return cmp > 0;
             case LESSER:
-                return left < right;
+                return cmp < 0;
             case EQUAL:
-                return left == right;
+                return cmp == 0;
             default:
                 throw new IllegalStateException("Unexpected comparison: " + node.cmp);
         }

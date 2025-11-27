@@ -1,4 +1,4 @@
-package validate;
+package usage;
 
 import ast.*;
 import lexer.LocatedString;
@@ -16,7 +16,11 @@ public class UsageVisitor extends ASTVisitor.Default {
 		this.declaredVariables = new ArrayList<>();
 		this.branchVariables = new Stack<>();
 		this.invalidVariables = new HashSet<>();
-		this.logger = Logger.get(LogType.VERIFIER);
+		this.logger = new Logger(LogLevel.DEBUG);
+	}
+
+	public boolean isUsageOk() {
+		return this.logger.dump() == LogLevel.DEBUG;
 	}
 
 	private boolean isDeclared(LocatedString var) {

@@ -2,7 +2,6 @@ package verifier;
 
 import ast.*;
 import com.microsoft.z3.*;
-import logging.*;
 
 import java.util.*;
 
@@ -18,8 +17,6 @@ public class VerificationVisitor extends ASTVisitor.Default {
 	Stack<BoolExpr> boolExprTree;
 	Stack<ArithExpr> intExprTree;
 
-	Logger logger;
-
 	public VerificationVisitor() {
 		this.ctx = new Context();
 		this.vars = new HashMap<>();
@@ -28,8 +25,6 @@ public class VerificationVisitor extends ASTVisitor.Default {
 		this.blockPostconditions.push(ctx.mkBool(true));
 		this.boolExprTree = new Stack<>();
 		this.intExprTree = new Stack<>();
-
-		this.logger = Logger.get(LogType.VERIFIER);
 	}
 
 	public boolean verifyCondition() {
@@ -38,7 +33,6 @@ public class VerificationVisitor extends ASTVisitor.Default {
 		}
 		Solver solver = this.ctx.mkSolver();
 		BoolExpr val = this.wp.pop();
-		System.out.println(val);
 		solver.add(ctx.mkNot(val));
 		Status status = solver.check();
 		return status == Status.UNSATISFIABLE;

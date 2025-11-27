@@ -1,0 +1,15 @@
+{
+    myvar := 12
+    t := -100
+    if myvar > 0 {
+        if 1 > 0 {
+            t := 1
+        }
+        else {
+
+        }
+    }
+    else {
+        check(t < 0)
+    }
+}

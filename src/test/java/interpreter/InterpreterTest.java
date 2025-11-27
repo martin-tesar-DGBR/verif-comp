@@ -38,12 +38,9 @@ public class InterpreterTest {
             Parser parser = new Parser(lexer);
             ASTNode program = parser.parseProgram();
 
-            boolean parsedOk =
-                    Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG &&
-                    Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
+            boolean parsedOk = lexer.dumpLogs() && program != null;
 
             Assert.assertTrue("Program " + filename + " failed parsing.", parsedOk);
-            Logger.clearLogs();
 
             Interpreter interpreter = new Interpreter();
             interpreter.run(program);
@@ -53,7 +50,6 @@ public class InterpreterTest {
             System.err.flush();
             System.setOut(originalOut);
             System.setErr(originalErr);
-            Logger.clearLogs();
         }
 
         String out = outBaos.toString().replace("\r\n", "\n");

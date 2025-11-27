@@ -1,9 +1,8 @@
-package validate;
+package usage;
 
 import ast.ASTNode;
 import ast.Parser;
 import lexer.Lexer;
-import logging.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,8 +16,7 @@ public class UsageTest {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			program = parser.parseProgram();
-			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
-			if (!pass) {
+			if (!lexer.dumpLogs() || program == null) {
 				return false;
 			}
 		} catch (IOException e) {
@@ -27,17 +25,17 @@ public class UsageTest {
 		Assert.assertNotNull(program);
 		UsageVisitor visitor = new UsageVisitor();
 		program.acceptVisitor(visitor);
-		boolean pass = Logger.get(LogType.VERIFIER).dump() == LogLevel.DEBUG;
-		Logger.clearLogs();
-		return pass;
+		return visitor.isUsageOk();
 	}
 
 	@Test
 	public void invalidUsage() {
-		Assert.assertTrue(testUsage("src/test/java/validate/pass/test1.txt"));
+		Assert.assertTrue(testUsage("src/test/java/usage/pass/test1.txt"));
+		Assert.assertTrue(testUsage("src/test/java/usage/pass/test2.txt"));
 
-		Assert.assertFalse(testUsage("src/test/java/validate/fail/test1.txt"));
-		Assert.assertFalse(testUsage("src/test/java/validate/fail/test2.txt"));
-		Assert.assertFalse(testUsage("src/test/java/validate/fail/test3.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test1.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test2.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test3.txt"));
+		Assert.assertFalse(testUsage("src/test/java/usage/fail/test4.txt"));
 	}
 }
