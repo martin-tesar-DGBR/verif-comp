@@ -1,5 +1,5 @@
 {
-    myvar := 12
+    myvar <<
     t := -100
     if myvar > 0 {
         if 1 > 0 {

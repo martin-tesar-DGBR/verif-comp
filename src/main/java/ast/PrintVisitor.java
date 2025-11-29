@@ -172,6 +172,12 @@ public class PrintVisitor extends ASTVisitor.Default {
 	}
 
 	@Override
+	public void visit(InputNode node) {
+		this.clearIndent();
+		this.println("INPUT: " + node.lhs.s);
+	}
+
+	@Override
 	public void visit(PrintNode node) {
 		this.clearIndent();
 		this.println("print: " + node.variable.s);

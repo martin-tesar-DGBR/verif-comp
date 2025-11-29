@@ -1,12 +1,12 @@
 {
-    x := 1
+    x <<
     y := 10
     if x < y {
-        z := x + y
+        z := y - x + 10
         check(z > 10)
     }
     else {
-        z := x - y
+        z := x - y + 11
         check(z > 10)
     }
     check(z > 10)

@@ -1,13 +1,11 @@
 {
-    x := 1
+    x <<
     y := 10
     if x < y {
-        z := y
-        check(p > 5)
+        z := y - x
     }
     else {
-        z := y
-        check(p > 5)
+        z := x - y
     }
     check(z > 5)
 }

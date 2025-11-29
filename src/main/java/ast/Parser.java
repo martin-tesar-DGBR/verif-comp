@@ -182,13 +182,26 @@ public class Parser {
 		Token label = stream.next();
 		if (label instanceof LabelToken l) {
 			if (!checkHasNext()) return null;
-			Token assign = stream.peek();
-			if (!expect(StaticToken.ASSIGN)) return null;
-			ASTNode expr = parseIntExpr();
-			return new AssignmentNode(assign.getLexeme(), l.getLexeme(), expr);
+			Token assignType = stream.peek();
+			if (!expect(StaticToken.ASSIGN, StaticToken.INPUT)) return null;
+			if (assignType instanceof StaticTokenImpl t) {
+				if (t.token == StaticToken.ASSIGN) {
+					ASTNode expr = parseIntExpr();
+					return new AssignmentNode(assignType.getLexeme(), l.getLexeme(), expr);
+				}
+				else if (t.token == StaticToken.INPUT) {
+					return new InputNode(assignType.getLexeme(), l.getLexeme());
+				}
+				else {
+					throw new IllegalStateException("unreachable");
+				}
+			}
+			else {
+				throw new IllegalStateException("unreachable");
+			}
 		}
 		else {
-			return null;
+			throw new IllegalStateException("expected label in assignment statement");
 		}
 	}
 
@@ -197,27 +210,11 @@ public class Parser {
 	}
 
 	private ASTNode parseIntAddExpr() {
-		ASTNode left = parseIntMulExpr();
+		ASTNode left = parseIntNegateExpr();
 		while (checkHasNext()) {
 			Token op = stream.peek();
 			if (op instanceof StaticTokenImpl t && (t.token == StaticToken.ADD || t.token == StaticToken.SUB)) {
 				if (!expect(StaticToken.ADD, StaticToken.SUB)) return null;
-				ASTNode right = parseIntMulExpr();
-				left = new IntOperatorNode(t, left, right);
-			}
-			else {
-				break;
-			}
-		}
-		return left;
-	}
-
-	private ASTNode parseIntMulExpr() {
-		ASTNode left = parseIntNegateExpr();
-		while (checkHasNext()) {
-			Token op = stream.peek();
-			if (op instanceof StaticTokenImpl t && t.token == StaticToken.MUL) {
-				if (!expect(StaticToken.MUL)) return null;
 				ASTNode right = parseIntNegateExpr();
 				left = new IntOperatorNode(t, left, right);
 			}

@@ -7,7 +7,6 @@ public class IntOperatorNode extends ASTNode {
 	public enum Operator {
 		ADD,
 		SUB,
-		MUL,
 		NEGATE,
 	}
 
@@ -28,9 +27,6 @@ public class IntOperatorNode extends ASTNode {
 				else {
 					this.op = Operator.SUB;
 				}
-			}
-			case MUL -> {
-				this.op = Operator.MUL;
 			}
 			default -> {
 				assert false;

@@ -77,4 +77,10 @@ public class UsageVisitor extends ASTVisitor.Default {
 			invalidVariables.add(node.label);
 		}
 	}
+
+	@Override
+	public void visit(InputNode node) {
+		super.visit(node);
+		addDeclared(node.lhs);
+	}
 }

@@ -1,14 +1,25 @@
 package smt;
 
 import ast.*;
+import interpret.Input;
 import interpret.Interpreter;
 import lexer.*;
 import usage.UsageVisitor;
 import verifier.VerificationVisitor;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Main {
+
+    static class ConsoleInput implements Input {
+        Scanner sc = new Scanner(System.in);
+
+        @Override
+        public String getLine() {
+            return sc.nextLine();
+        }
+    }
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -44,7 +55,7 @@ public class Main {
             return;
         }
 
-        Interpreter interpreter = new Interpreter();
+        Interpreter interpreter = new Interpreter(new ConsoleInput());
         interpreter.run(root);
     }
 }

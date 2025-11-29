@@ -139,14 +139,6 @@ public class VerificationVisitor extends ASTVisitor.Default {
 				ArithExpr exprL = this.intExprTree.pop();
 				expr = this.ctx.mkSub(exprL, exprR);
 			}
-			case MUL -> {
-				if (this.intExprTree.size() < 2) {
-					throw new IllegalStateException("Operator at " + node.lexeme + " does not have two subexpressions.");
-				}
-				ArithExpr exprR = this.intExprTree.pop();
-				ArithExpr exprL = this.intExprTree.pop();
-				expr = this.ctx.mkMul(exprL, exprR);
-			}
 			case NEGATE -> {
 				if (this.intExprTree.size() < 1) {
 					throw new IllegalStateException("Operator at " + node.lexeme + " does not have a subexpression.");
@@ -241,5 +233,21 @@ public class VerificationVisitor extends ASTVisitor.Default {
 		super.visit(node);
 		IntExpr expr = ctx.mkInt(node.lexeme.s);
 		this.intExprTree.push(expr);
+	}
+
+	@Override
+	public void visit(InputNode node) {
+		super.visit(node);
+		IntExpr lhs;
+		if (this.vars.containsKey(node.lhs.s)) {
+			lhs = this.vars.get(node.lhs.s);
+		}
+		else {
+			lhs = ctx.mkIntConst(node.lhs.s);
+			this.vars.put(node.lhs.s, lhs);
+		}
+		BoolExpr q = this.wp.pop();
+		BoolExpr sub = ctx.mkForall(new Expr[]{lhs}, q, 0, null, null, null, null);
+		this.wp.push(sub);
 	}
 }

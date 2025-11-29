@@ -1,5 +1,5 @@
 {
-    x := 1
+    x <<
     print(x)
     y := 10
     check(x > y)

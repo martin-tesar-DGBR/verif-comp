@@ -2,6 +2,7 @@ package interpreter;
 
 import ast.ASTNode;
 import ast.Parser;
+import interpret.Input;
 import interpret.Interpreter;
 import lexer.Lexer;
 import logging.LogLevel;
@@ -16,6 +17,27 @@ import java.io.PrintStream;
 
 public class InterpreterTest {
 
+    static class TestInput implements Input {
+        String[] args;
+        int curr;
+
+        TestInput(String... args) {
+            this.args = args;
+            this.curr = 0;
+        }
+
+        @Override
+        public String getLine() {
+            if (this.curr < this.args.length) {
+                String ret = this.args[this.curr];
+                this.curr += 1;
+                return ret;
+            }
+            else {
+                return null;
+            }
+        }
+    }
    
     private String interpretFile(String filename) throws IOException {
         return interpretFileWithStdoutAndStderr(filename)[0];
@@ -42,7 +64,7 @@ public class InterpreterTest {
 
             Assert.assertTrue("Program " + filename + " failed parsing.", parsedOk);
 
-            Interpreter interpreter = new Interpreter();
+            Interpreter interpreter = new Interpreter(new TestInput());
             interpreter.run(program);
 
         } finally {

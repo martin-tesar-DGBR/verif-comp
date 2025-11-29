@@ -32,6 +32,7 @@ public interface ASTVisitor {
 
 	void visit(LabelNode node);
 	void visit(IntConstantNode node);
+	void visit(InputNode node);
 	void visit(PrintNode node);
 	void visit(ErrorNode node);
 
@@ -88,6 +89,9 @@ public interface ASTVisitor {
 
 		@Override
 		public void visit(IntConstantNode node) {}
+
+		@Override
+		public void visit(InputNode node) {}
 
 		@Override
 		public void visit(PrintNode node) {}

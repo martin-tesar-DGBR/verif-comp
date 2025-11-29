@@ -1,9 +1,12 @@
 {
-    x := 1
+    x <<
     y := 10
+    if x < 0 {
+        x := -x
+    } else {}
     if x < y {
         z := x + y
-        check(z > 10)
+        check(!z < 10)
         if z < y {
             z := x + y + z
             check(z > x + y)
@@ -14,8 +17,8 @@
         }
     }
     else {
-        z := x - y
+        z := x + y
         check(z > 10)
     }
-    check(z > 10)
+    check(!z < 10)
 }

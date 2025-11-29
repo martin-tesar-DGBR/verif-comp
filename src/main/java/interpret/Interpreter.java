@@ -4,15 +4,18 @@ import ast.*;
 import lexer.LocatedString;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Interpreter {
 
     // Single environment mapping variable name -> integer value
     private final Map<String, BigInteger> env = new HashMap<>();
+    Input input;
+
+    public Interpreter(Input input) {
+        this.input = input;
+    }
 
     /**
      * Entry point: interpret the entire program.
@@ -40,6 +43,9 @@ public class Interpreter {
         if (stmt instanceof AssignmentNode) {
             executeAssignment((AssignmentNode) stmt);
         }
+        else if (stmt instanceof InputNode) {
+            executeInput((InputNode) stmt);
+        }
         else if (stmt instanceof IfNode) {
             executeIf((IfNode) stmt);
         }
@@ -57,6 +63,26 @@ public class Interpreter {
     private void executeAssignment(AssignmentNode node) {
         String varName = node.lhs.s;
         BigInteger value = evalInt(node.rhs);
+        env.put(varName, value);
+    }
+
+    private void executeInput(InputNode node) {
+        String varName = node.lhs.s;
+        int line = node.lhs.line;
+        BigInteger value = null;
+        boolean valid = false;
+        String input;
+        Scanner sc = new Scanner(System.in);
+        do {
+            System.out.println("Enter value for " + varName + " on line " + line + ":");
+            input = sc.nextLine();
+            try {
+                value = new BigInteger(input);
+                valid = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid value: " + input);
+            }
+        } while (!valid);
         env.put(varName, value);
     }
 
@@ -126,11 +152,6 @@ public class Interpreter {
                 BigInteger left = evalInt(node.left);
                 BigInteger right = evalInt(node.right);
                 return left.subtract(right);
-            }
-            case MUL -> {
-                BigInteger left = evalInt(node.left);
-                BigInteger right = evalInt(node.right);
-                return left.multiply(right);
             }
             case NEGATE -> {
                 BigInteger v = evalInt(node.left);
