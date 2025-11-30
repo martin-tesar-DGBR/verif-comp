@@ -1,0 +1,16 @@
+{
+    x := 12
+    y := 15
+    y := 5
+    y := 10
+    check(x > y)
+    if x > 5 {
+        x := 3
+        x := 100
+    }
+    else {
+        y := x - 3
+    }
+    check(x > y)
+    check(x == x)
+}
